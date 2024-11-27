@@ -2,11 +2,13 @@
 
 # Task 1: Firewall configuration 
 This lab explores various encryption algorithm with openssl
+
 **Question 1**:
 Setup a set of vms/containers in a network configuration of 2 subnets (1,2) with a router forwarding traffic between them. Relevant services are also required:
 - The router is initially can not route traffic between subnets
 - PC0 on subnet 1 serves as a web server on subnet 1
 - PC1,PC2 on subnet 2 acts as client workstations on subnet 2
+
 **Answer 1**:
 *First, we create 2 subnets (1,2):*<br>
 ```sh
@@ -33,7 +35,9 @@ docker exec -it router bash -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
 ```
 
 # I try to config the requirement of question 1 but it not work, so i will use VMware for this lab
+
 # Task 2. Encrypting large message 
+
 Use PC0 and PC2 for this lab 
 Create a text file at least 56 bytes on PC2 this file will be sent encrypted to PC0
 
@@ -44,7 +48,9 @@ I will use Huy act as PC2 and John act as PC0
 ![image](https://github.com/user-attachments/assets/e80295a3-aa28-41ff-b713-d66a00955368)
 
 **Question 1**: Encrypt the file with aes-cipher in CTR and OFB modes. How do you evaluate both cipher in terms of error propagation and adjacent plaintext blocks are concerned. 
+
 **Answer 1**:
+
 - First i encrypt the file with aes-cipher in CTR and OFB modes:
 ```
 openssl enc -aes-256-ctr -in sample.txt -out sample_ctr.enc -pass pass:secret
