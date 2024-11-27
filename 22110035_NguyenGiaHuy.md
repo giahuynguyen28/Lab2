@@ -1,100 +1,84 @@
-# Lab #1,20110357, Dinh Tan Dung, INSE331280E_02FIE
-# Task 1: Encrypt and Decrypt Text file
+# Lab #2,22110035, Nguyen Gia Huy, Information Security_ Nhom 03FIE
+
+# Task 1: Firewall configuration 
 This lab explores various encryption algorithm with openssl
-**Question 1**: Exploration of various encryption with openssl
+**Question 1**:
+Setup a set of vms/containers in a network configuration of 2 subnets (1,2) with a router forwarding traffic between them. Relevant services are also required:
+- The router is initially can not route traffic between subnets
+- PC0 on subnet 1 serves as a web server on subnet 1
+- PC1,PC2 on subnet 2 acts as client workstations on subnet 2
 **Answer 1**:
-## 1. Create a text file named `plain.txt`:
-*First, we write a message and save it in a text file:*<br>
-
+*First, we create 2 subnets (1,2):*<br>
 ```sh
-echo "Sir, when will we meet again?...When the dandelions bloom, my dear." > plain.txt
-```
-Verify current folder for newly created file
-
-## 2. Encrypt the file using AES-256 in ECB mode:
-
-```sh
-openssl enc -aes-256-ecb -nosalt -in plain.txt -out ecb_encrypted.txt -K 00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF
-``` 
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage1.png?raw=true"><br>
-
-Cyphertext can clearly be seen in the screenshot.
-
-## 3. View the encrypted file using `xxd`:
-
-```sh
-xxd ecb_encrypted.txt
+docker network create subnet1 --subnet=192.168.1.0/24
+docker network create subnet2 --subnet=192.168.2.0/24
 ```
 
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage2.png?raw=true"><br>
-
-Hex bytes of encrypted file can clearly be seen in the screenshot.
-
-## 4. Decrypt the file:
-
+*Then, we  create PC0 on subnet 1 serves as a web server on subnet 1:*<br>
 ```sh
-openssl enc -d -aes-256-ecb -nosalt -in ecb_encrypted.txt -out ecb_decrypted.txt -K 00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF
+docker run -dit --name pc0 --net subnet1 --ip 192.168.1.10 ubuntu:latest
+docker exec -it pc0 bash -c "apt update && apt install -y apache2 && service apache2 start && echo 'Hello from PC0!' > /var/www/html/index.html"
 ```
 
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage3.png?raw=true"><br>
-
-The origin content can be seen after decryption in the screenshot.
-## 5. **For CBC mode**:
-
-- Encrypt:
-
+*Then, we create - PC1,PC2 on subnet 2 acts as client workstations on subnet 2:*<br>
 ```sh
-openssl enc -aes-256-cbc -nosalt -in plain.txt -out cbc_encrypted.txt -K 00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF -iv 0102030405060708090A0B0C0D0E0F10
+docker run -dit --name pc2 --net subnet2 --ip 192.168.2.11 ubuntu:latest
+docker run -dit --name pc1 --net subnet2 --ip 192.168.2.10 ubuntu:latest
+```
+*Then, we create a router:*<br>
+```sh
+docker run -dit --name router --privileged --net subnet1 --ip 192.168.1.2 ubuntu:latest
+docker network connect subnet2 router --ip 192.168.2.1
+docker exec -it router bash -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
 ```
 
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage4.png?raw=true"><br>
+# I try to config the requirement of question 1 but it not work, so i will use VMware for this lab
+# Task 2. Encrypting large message 
+Use PC0 and PC2 for this lab 
+Create a text file at least 56 bytes on PC2 this file will be sent encrypted to PC0
 
+I will use Huy act as PC2 and John act as PC0
 
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage5.png?raw=true"><br>
+**Create a text file**
+![image](https://github.com/user-attachments/assets/e80295a3-aa28-41ff-b713-d66a00955368)
 
-
-- Decrypt:
-
-```sh
-openssl enc -d -aes-256-cbc -nosalt -in cbc_encrypted.txt -out cbc_decrypted.txt -K 00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF -iv 0102030405060708090A0B0C0D0E0F10
-```
-
-
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage6.png?raw=true"><br>
-
-# Task 2. Encryption Mode – ECB vs. CBC
-This lab compares the behaviour of ECB and CBC encryption modes
-**Question 1**: Exploration of various ECB & CBC  with openssl
+**Question 1**: Encrypt the file with aes-cipher in CTR and OFB modes. How do you evaluate both cipher in terms of error propagation and adjacent plaintext blocks are concerned. 
 **Answer 1**:
-## 1. Download the bitmap file `origin.bmp`.
+- First i encrypt the file with aes-cipher in CTR and OFB modes:
+```
+openssl enc -aes-256-ctr -in sample.txt -out sample_ctr.enc -pass pass:secret
+openssl enc -aes-256-ofb -in sample.txt -out sample_ctr.enc -pass pass:secret
+```
+![image](https://github.com/user-attachments/assets/38e74592-ad5c-498e-a1e9-cba67c222e9a)
 
+- Then i send to john
+![image](https://github.com/user-attachments/assets/fc08271a-78b4-4a14-98a9-2374b5184d7a)
 
-## 2. Split the file into header and body:
+- Check if the file is already sent on John computer:
+![image](https://github.com/user-attachments/assets/5b9a522c-6f18-4faa-a840-dddebb399f45)
 
-```sh
-dd if=origin.bmp of=header.bin bs=1 count=54
-dd if=origin.bmp of=body.bin bs=1 skip=54
+- And then i check if the content of the file is correct
+```
+openssl enc -aes-256-ctr -d -in sample_ctr.enc -out decrypted_ctr.txt -pass pass:secret
+openssl enc -aes-256-ofb -d -in sample_ofb.enc -out decrypted_ofb.txt -pass pass:secret
 ```
 
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage7.png?raw=true"><br>
+- Evaluate both cipher in terms of error propagation and adjacent plaintext blocks are concerned.
+**Error Propagation**:
+CTR has minimal error propagation — an error in one ciphertext block only impacts that particular block in the plaintext.
+OFB has stronger error propagation than CTR — a small error in one block can corrupt many subsequent blocks in the plaintext.
+
+**Adjacent Plaintext Blocks**
+In CTR mode, there is no dependency between adjacent plaintext blocks. This means that a change in one plaintext block does not affect the encryption of adjacent blocks. Each block is processed independently.
+
+In OFB mode, there is no dependency between adjacent plaintext blocks as well. However, due to error propagation, a change in one block can affect many subsequent blocks, altering the decrypted text.
 
 
-## 3. Encrypt the body using CBC mode:
+**Question 2**:
+- Assume the 6th bit in the ciphered file is corrupted.
+- Verify the received files for each cipher mode on PC0
+**Answer 2**:
 
-<span>*I reused the KEY and IV values from the first task, just to make sure the consistency.*</span><br>
-
-```sh
-openssl enc -aes-256-cbc -nosalt -in body.bin -out encrypted_body.bin -K 00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF -iv 0102030405060708090A0B0C0D0E0F10
-```
-
-<span>*After using the `cat` command to look at the `encrypted_body.bin`, we can see it was fully encrypted.*</span><br>
-
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage8.png?raw=true"><br>
-
-## 4. Combine the header and encrypted body:
-
-```sh
-cat header.bin encrypted_body.bin > partially_encrypted.bmp
-```
-
-<img width="500" alt="Screenshot" src="https://github.com/AlexanderSlokov/Security-Labs-Submission/blob/main/asset/encryptingLargeMessage9.png?raw=true"><br>
+**Question 3**:
+- Decrypt corrupted files on PC0.
+- Comment on both ciphers in terms of error propagation and adjacent plaintext blocks criteria. 
