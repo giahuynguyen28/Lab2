@@ -40,6 +40,7 @@ Create a text file at least 56 bytes on PC2 this file will be sent encrypted to 
 I will use Huy act as PC2 and John act as PC0
 
 **Create a text file**
+
 ![image](https://github.com/user-attachments/assets/e80295a3-aa28-41ff-b713-d66a00955368)
 
 **Question 1**: Encrypt the file with aes-cipher in CTR and OFB modes. How do you evaluate both cipher in terms of error propagation and adjacent plaintext blocks are concerned. 
@@ -49,12 +50,15 @@ I will use Huy act as PC2 and John act as PC0
 openssl enc -aes-256-ctr -in sample.txt -out sample_ctr.enc -pass pass:secret
 openssl enc -aes-256-ofb -in sample.txt -out sample_ctr.enc -pass pass:secret
 ```
+
 ![image](https://github.com/user-attachments/assets/38e74592-ad5c-498e-a1e9-cba67c222e9a)
 
 - Then i send to john
+  
 ![image](https://github.com/user-attachments/assets/fc08271a-78b4-4a14-98a9-2374b5184d7a)
 
 - Check if the file is already sent on John computer:
+  
 ![image](https://github.com/user-attachments/assets/5b9a522c-6f18-4faa-a840-dddebb399f45)
 
 - And then i check if the content of the file is correct
@@ -64,12 +68,17 @@ openssl enc -aes-256-ofb -d -in sample_ofb.enc -out decrypted_ofb.txt -pass pass
 ```
 
 - Evaluate both cipher in terms of error propagation and adjacent plaintext blocks are concerned.
+
 **Error Propagation**:
+
 CTR has minimal error propagation — an error in one ciphertext block only impacts that particular block in the plaintext.
+
 OFB has stronger error propagation than CTR — a small error in one block can corrupt many subsequent blocks in the plaintext.
 
 **Adjacent Plaintext Blocks**
-In CTR mode, there is no dependency between adjacent plaintext blocks. This means that a change in one plaintext block does not affect the encryption of adjacent blocks. Each block is processed independently.
+
+In CTR mode, there is no dependency between adjacent plaintext blocks. This means that a change in one plaintext block does not affect the encryption of adjacent 
+blocks. Each block is processed independently.
 
 In OFB mode, there is no dependency between adjacent plaintext blocks as well. However, due to error propagation, a change in one block can affect many subsequent blocks, altering the decrypted text.
 
